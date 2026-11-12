@@ -1,0 +1,5 @@
+.git
+frontend
+*.md
+.env
+bin

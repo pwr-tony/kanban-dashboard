@@ -1,0 +1,60 @@
+services:
+  db:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: ${DB_NAME:-kanban}
+      MYSQL_USER: ${DB_USER:-kanban}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-kanban}
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-root}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  migrate:
+    image: migrate/migrate:4
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./migrations:/migrations:ro
+    command:
+      - "-path=/migrations"
+      - "-database=mysql://${DB_USER:-kanban}:${DB_PASSWORD:-kanban}@tcp(db:3306)/${DB_NAME:-kanban}"
+      - "up"
+
+  api:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    environment:
+      HTTP_PORT: "8080"
+      DB_HOST: db
+      DB_PORT: "3306"
+      DB_USER: ${DB_USER:-kanban}
+      DB_PASSWORD: ${DB_PASSWORD:-kanban}
+      DB_NAME: ${DB_NAME:-kanban}
+      JWT_SECRET: ${JWT_SECRET:-cambia-este-secreto-en-produccion}
+      CORS_ORIGIN: "*"
+    ports:
+      - "8080:8080"
+
+  frontend:
+    image: nginx:alpine
+    depends_on:
+      - api
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+    ports:
+      - "3000:80"
+
+volumes:
+  db_data:

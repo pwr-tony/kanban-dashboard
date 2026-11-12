@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dashboard Kanban</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="auth-view" class="auth-view">
+    <div class="auth-card">
+      <h1>Dashboard Kanban</h1>
+      <p class="muted">Gestiona el ciclo de vida de tu proyecto con límites de WIP.</p>
+      <div class="tabs">
+        <button id="tab-login" class="tab active">Entrar</button>
+        <button id="tab-register" class="tab">Registrarse</button>
+      </div>
+      <form id="auth-form" class="auth-form">
+        <label id="name-field" class="hidden">
+          Nombre
+          <input type="text" id="auth-name" autocomplete="name" />
+        </label>
+        <label>
+          Email
+          <input type="email" id="auth-email" autocomplete="email" required />
+        </label>
+        <label>
+          Contraseña
+          <input type="password" id="auth-password" autocomplete="current-password" required />
+        </label>
+        <button type="submit" class="btn btn-primary" id="auth-submit">Entrar</button>
+        <p id="auth-error" class="error"></p>
+      </form>
+    </div>
+  </div>
+
+  <div id="app-view" class="hidden">
+    <header class="topbar">
+      <div class="topbar-left">
+        <strong>Kanban</strong>
+        <select id="board-select"></select>
+        <button class="btn" id="new-board-btn">+ Tablero</button>
+      </div>
+      <div class="topbar-right">
+        <button class="btn" id="metrics-btn">Métricas</button>
+        <button class="btn" id="labels-btn">Etiquetas</button>
+        <span id="current-user" class="muted"></span>
+        <button class="btn" id="logout-btn">Salir</button>
+      </div>
+    </header>
+
+    <main id="board-area" class="board-area"></main>
+  </div>
+
+  <div id="modal-backdrop" class="modal-backdrop hidden">
+    <div class="modal" id="modal"></div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
