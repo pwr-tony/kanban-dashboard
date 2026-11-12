@@ -6,8 +6,8 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
-	"github.com/pwr-tony/kanban-dashboard/internal/infrastructure/auth"
-	"github.com/pwr-tony/kanban-dashboard/internal/interfaces/http/handlers"
+	"kanban/internal/infrastructure/auth"
+	"kanban/internal/interfaces/http/handlers"
 )
 
 func TestRouterBuildsAndHealthResponds(t *testing.T) {

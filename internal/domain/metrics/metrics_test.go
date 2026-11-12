@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/pwr-tony/kanban-dashboard/internal/domain/board"
+	"kanban/internal/domain/board"
 )
 
 func col(id int64, name string, pos, wip int) *board.Column {

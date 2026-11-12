@@ -3,12 +3,12 @@ package main
 import (
 	"log"
 
-	"github.com/pwr-tony/kanban-dashboard/internal/application"
-	"github.com/pwr-tony/kanban-dashboard/internal/infrastructure/auth"
-	"github.com/pwr-tony/kanban-dashboard/internal/infrastructure/config"
-	"github.com/pwr-tony/kanban-dashboard/internal/infrastructure/persistence/mysql"
-	httpapi "github.com/pwr-tony/kanban-dashboard/internal/interfaces/http"
-	"github.com/pwr-tony/kanban-dashboard/internal/interfaces/http/handlers"
+	"kanban/internal/application"
+	"kanban/internal/infrastructure/auth"
+	"kanban/internal/infrastructure/config"
+	"kanban/internal/infrastructure/persistence/mysql"
+	httpapi "kanban/internal/interfaces/http"
+	"kanban/internal/interfaces/http/handlers"
 )
 
 func main() {

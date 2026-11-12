@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"errors"
 
-	"github.com/pwr-tony/kanban-dashboard/internal/domain/board"
+	"kanban/internal/domain/board"
 )
 
 type BoardRepository struct {

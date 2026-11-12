@@ -5,9 +5,9 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/pwr-tony/kanban-dashboard/internal/infrastructure/auth"
-	"github.com/pwr-tony/kanban-dashboard/internal/interfaces/http/handlers"
-	"github.com/pwr-tony/kanban-dashboard/internal/interfaces/http/middleware"
+	"kanban/internal/infrastructure/auth"
+	"kanban/internal/interfaces/http/handlers"
+	"kanban/internal/interfaces/http/middleware"
 )
 
 func NewRouter(h *handlers.Handlers, issuer auth.JWTIssuer, corsOrigin string) *gin.Engine {

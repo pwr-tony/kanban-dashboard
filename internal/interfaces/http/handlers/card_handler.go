@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/pwr-tony/kanban-dashboard/internal/application"
+	"kanban/internal/application"
 )
 
 type createCardRequest struct {

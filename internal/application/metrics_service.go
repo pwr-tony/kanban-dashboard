@@ -4,8 +4,8 @@ import (
 	"context"
 	"strings"
 
-	"github.com/pwr-tony/kanban-dashboard/internal/domain/board"
-	"github.com/pwr-tony/kanban-dashboard/internal/domain/metrics"
+	"kanban/internal/domain/board"
+	"kanban/internal/domain/metrics"
 )
 
 type MetricsService struct {

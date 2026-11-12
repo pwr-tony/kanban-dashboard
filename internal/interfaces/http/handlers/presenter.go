@@ -3,9 +3,9 @@ package handlers
 import (
 	"time"
 
-	"github.com/pwr-tony/kanban-dashboard/internal/application"
-	"github.com/pwr-tony/kanban-dashboard/internal/domain/board"
-	"github.com/pwr-tony/kanban-dashboard/internal/domain/user"
+	"kanban/internal/application"
+	"kanban/internal/domain/board"
+	"kanban/internal/domain/user"
 )
 
 type boardResponse struct {

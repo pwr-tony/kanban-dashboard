@@ -1,4 +1,4 @@
-module github.com/pwr-tony/kanban-dashboard
+module kanban
 
 go 1.26.10
 

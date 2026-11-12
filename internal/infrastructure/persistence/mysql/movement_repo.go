@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 
-	"github.com/pwr-tony/kanban-dashboard/internal/domain/board"
+	"kanban/internal/domain/board"
 )
 
 type MovementRepository struct {

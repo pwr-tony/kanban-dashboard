@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/pwr-tony/kanban-dashboard/internal/infrastructure/auth"
+	"kanban/internal/infrastructure/auth"
 )
 
 func RequireAuth(issuer auth.JWTIssuer) gin.HandlerFunc {

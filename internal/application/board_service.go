@@ -3,7 +3,7 @@ package application
 import (
 	"context"
 
-	"github.com/pwr-tony/kanban-dashboard/internal/domain/board"
+	"kanban/internal/domain/board"
 )
 
 type BoardService struct {

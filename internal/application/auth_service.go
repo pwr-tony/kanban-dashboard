@@ -3,7 +3,7 @@ package application
 import (
 	"context"
 
-	"github.com/pwr-tony/kanban-dashboard/internal/domain/user"
+	"kanban/internal/domain/user"
 )
 
 type AuthService struct {

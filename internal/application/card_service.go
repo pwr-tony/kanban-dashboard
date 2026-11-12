@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/pwr-tony/kanban-dashboard/internal/domain/board"
+	"kanban/internal/domain/board"
 )
 
 type CardService struct {

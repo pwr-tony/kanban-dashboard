@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"errors"
 
-	"github.com/pwr-tony/kanban-dashboard/internal/domain/user"
+	"kanban/internal/domain/user"
 )
 
 type UserRepository struct {
