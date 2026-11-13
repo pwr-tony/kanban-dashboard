@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 
+	"github.com/joho/godotenv"
 	"kanban/internal/application"
 	"kanban/internal/infrastructure/auth"
 	"kanban/internal/infrastructure/config"
@@ -12,6 +13,8 @@ import (
 )
 
 func main() {
+	_ = godotenv.Load()
+
 	cfg := config.Load()
 
 	db, err := mysql.Connect(cfg.DSN)
