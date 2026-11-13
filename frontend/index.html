@@ -3,60 +3,111 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Dashboard Kanban</title>
+  <title>Kanban · Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <!-- ===== Auth ===== -->
   <div id="auth-view" class="auth-view">
-    <div class="auth-card">
-      <h1>Dashboard Kanban</h1>
-      <p class="muted">Gestiona el ciclo de vida de tu proyecto con límites de WIP.</p>
-      <div class="tabs">
-        <button id="tab-login" class="tab active">Entrar</button>
-        <button id="tab-register" class="tab">Registrarse</button>
+    <div class="auth-aside">
+      <div class="brand brand-lg">
+        <span class="brand-mark">◧</span>
+        <span>Kanban</span>
       </div>
-      <form id="auth-form" class="auth-form">
-        <label id="name-field" class="hidden">
-          Nombre
-          <input type="text" id="auth-name" autocomplete="name" />
-        </label>
-        <label>
-          Email
-          <input type="email" id="auth-email" autocomplete="email" required />
-        </label>
-        <label>
-          Contraseña
-          <input type="password" id="auth-password" autocomplete="current-password" required />
-        </label>
-        <button type="submit" class="btn btn-primary" id="auth-submit">Entrar</button>
-        <p id="auth-error" class="error"></p>
-      </form>
+      <h2 class="auth-tagline">El flujo de tu proyecto,<br />bajo control.</h2>
+      <ul class="auth-points">
+        <li><span>◆</span> Límites de WIP que se respetan de verdad</li>
+        <li><span>◆</span> Cycle time y métricas en tiempo real</li>
+        <li><span>◆</span> Tableros, etiquetas y asignación</li>
+      </ul>
+      <div class="auth-aside-glow"></div>
+    </div>
+
+    <div class="auth-panel">
+      <div class="auth-card">
+        <div class="tabs" role="tablist">
+          <button id="tab-login" class="tab active" role="tab">Entrar</button>
+          <button id="tab-register" class="tab" role="tab">Crear cuenta</button>
+        </div>
+        <form id="auth-form" class="form">
+          <label id="name-field" class="field hidden">
+            <span>Nombre</span>
+            <input type="text" id="auth-name" autocomplete="name" placeholder="Tu nombre" />
+          </label>
+          <label class="field">
+            <span>Email</span>
+            <input type="email" id="auth-email" autocomplete="email" placeholder="tu@correo.mx" required />
+          </label>
+          <label class="field">
+            <span>Contraseña</span>
+            <input type="password" id="auth-password" autocomplete="current-password" placeholder="••••••••" required />
+          </label>
+          <button type="submit" class="btn btn-primary btn-block" id="auth-submit">Entrar</button>
+          <p id="auth-error" class="form-error"></p>
+          <p class="auth-hint muted">Demo: <code>demo@kanban.mx</code> · <code>demo1234</code></p>
+        </form>
+      </div>
     </div>
   </div>
 
-  <div id="app-view" class="hidden">
-    <header class="topbar">
-      <div class="topbar-left">
-        <strong>Kanban</strong>
-        <select id="board-select"></select>
-        <button class="btn" id="new-board-btn">+ Tablero</button>
+  <!-- ===== App ===== -->
+  <div id="app-view" class="app hidden">
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-mark">◧</span>
+        <span>Kanban</span>
       </div>
-      <div class="topbar-right">
-        <button class="btn" id="metrics-btn">Métricas</button>
-        <button class="btn" id="labels-btn">Etiquetas</button>
-        <span id="current-user" class="muted"></span>
-        <button class="btn" id="logout-btn">Salir</button>
-      </div>
-    </header>
 
-    <main id="board-area" class="board-area"></main>
+      <div class="sidebar-section">
+        <div class="sidebar-label">
+          <span>Tableros</span>
+          <button class="icon-btn" id="new-board-btn" title="Nuevo tablero">+</button>
+        </div>
+        <nav id="board-nav" class="board-nav"></nav>
+      </div>
+
+      <div class="sidebar-foot">
+        <div class="user-card">
+          <div class="avatar" id="user-avatar">·</div>
+          <div class="user-meta">
+            <span id="current-user" class="user-name"></span>
+            <span class="muted sm">Sesión activa</span>
+          </div>
+          <button class="icon-btn" id="logout-btn" title="Salir">⌁</button>
+        </div>
+      </div>
+    </aside>
+
+    <main class="workspace">
+      <header class="workspace-header">
+        <div class="wh-title">
+          <h1 id="board-title">—</h1>
+          <p id="board-desc" class="muted"></p>
+        </div>
+        <div class="wh-actions">
+          <div class="segmented" id="view-switch">
+            <button class="seg active" data-view="board">Tablero</button>
+            <button class="seg" data-view="metrics">Métricas</button>
+          </div>
+          <button class="btn" id="labels-btn">Etiquetas</button>
+          <button class="btn btn-primary" id="new-column-btn">+ Columna</button>
+        </div>
+      </header>
+
+      <section id="board-view" class="board-view"></section>
+      <section id="metrics-view" class="metrics-view hidden"></section>
+    </main>
   </div>
 
-  <div id="modal-backdrop" class="modal-backdrop hidden">
+  <div id="modal-root" class="modal-root hidden">
+    <div class="modal-backdrop"></div>
     <div class="modal" id="modal"></div>
   </div>
 
-  <div id="toast" class="toast hidden"></div>
+  <div id="toast" class="toast"></div>
 
   <script src="app.js"></script>
 </body>
