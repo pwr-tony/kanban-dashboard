@@ -39,7 +39,7 @@ func main() {
 	authService := application.NewAuthService(userRepo, hasher, issuer)
 
 	h := handlers.New(boardService, cardService, metricsService, authService)
-	router := httpapi.NewRouter(h, issuer, cfg.CORSOrigin)
+	router := httpapi.NewRouter(h, issuer, cfg.CORSOrigin, cfg.StaticDir)
 
 	log.Printf("API escuchando en :%s", cfg.HTTPPort)
 	if err := router.Run(":" + cfg.HTTPPort); err != nil {

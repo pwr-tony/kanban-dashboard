@@ -13,7 +13,7 @@ import (
 func TestRouterBuildsAndHealthResponds(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	h := handlers.New(nil, nil, nil, nil)
-	r := NewRouter(h, auth.NewJWTIssuer("test"), "*")
+	r := NewRouter(h, auth.NewJWTIssuer("test"), "*", "")
 
 	w := httptest.NewRecorder()
 	req := httptest.NewRequest(http.MethodGet, "/health", nil)
@@ -27,7 +27,7 @@ func TestRouterBuildsAndHealthResponds(t *testing.T) {
 func TestProtectedRouteRejectsWithoutToken(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	h := handlers.New(nil, nil, nil, nil)
-	r := NewRouter(h, auth.NewJWTIssuer("test"), "*")
+	r := NewRouter(h, auth.NewJWTIssuer("test"), "*", "")
 
 	w := httptest.NewRecorder()
 	req := httptest.NewRequest(http.MethodGet, "/boards", nil)

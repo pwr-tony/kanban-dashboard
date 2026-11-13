@@ -1,6 +1,7 @@
 package http
 
 import (
+	"net/http"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -10,8 +11,9 @@ import (
 	"kanban/internal/interfaces/http/middleware"
 )
 
-func NewRouter(h *handlers.Handlers, issuer auth.JWTIssuer, corsOrigin string) *gin.Engine {
+func NewRouter(h *handlers.Handlers, issuer auth.JWTIssuer, corsOrigin, staticDir string) *gin.Engine {
 	r := gin.New()
+	_ = r.SetTrustedProxies(nil)
 	r.Use(gin.Logger(), gin.Recovery())
 
 	corsConfig := cors.Config{
@@ -56,6 +58,10 @@ func NewRouter(h *handlers.Handlers, issuer auth.JWTIssuer, corsOrigin string) *
 		api.DELETE("/cards/:id", h.DeleteCard)
 
 		api.DELETE("/labels/:id", h.DeleteLabel)
+	}
+
+	if staticDir != "" {
+		r.NoRoute(gin.WrapH(http.FileServer(http.Dir(staticDir))))
 	}
 
 	return r

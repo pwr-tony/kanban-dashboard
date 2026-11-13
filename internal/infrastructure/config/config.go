@@ -12,6 +12,7 @@ type Config struct {
 	DSN        string
 	JWTSecret  string
 	CORSOrigin string
+	StaticDir  string
 }
 
 func Load() Config {
@@ -30,6 +31,7 @@ func Load() Config {
 		DSN:        my.FormatDSN(),
 		JWTSecret:  env("USERVAR_JWT_SECRET", "cambia-este-secreto-en-produccion"),
 		CORSOrigin: env("USERVAR_CORS_ORIGIN", "*"),
+		StaticDir:  env("USERVAR_STATIC_DIR", "frontend"),
 	}
 }
 
