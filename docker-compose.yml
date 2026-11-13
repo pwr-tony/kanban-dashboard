@@ -1,11 +1,13 @@
+# Lee la configuración de .env (cp .env.example .env). Las mismas variables
+# USERVAR_* sirven para `go run` local y para docker-compose.
 services:
   db:
     image: mysql:8
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
-      MYSQL_DATABASE: ${DB_NAME:-kanban}
-      MYSQL_USER: ${DB_USER:-kanban}
-      MYSQL_PASSWORD: ${DB_PASSWORD:-kanban}
+      MYSQL_DATABASE: ${USERVAR_DB_NAME:-kanban}
+      MYSQL_USER: ${USERVAR_DB_USER:-kanban}
+      MYSQL_PASSWORD: ${USERVAR_DB_PASSWORD:-kanban}
     ports:
       - "3306:3306"
     volumes:
@@ -25,7 +27,7 @@ services:
       - ./migrations:/migrations:ro
     command:
       - "-path=/migrations"
-      - "-database=mysql://${DB_USER:-kanban}:${DB_PASSWORD:-kanban}@tcp(db:3306)/${DB_NAME:-kanban}"
+      - "-database=mysql://${USERVAR_DB_USER:-kanban}:${USERVAR_DB_PASSWORD:-kanban}@tcp(db:3306)/${USERVAR_DB_NAME:-kanban}"
       - "up"
 
   api:
@@ -36,23 +38,31 @@ services:
       migrate:
         condition: service_completed_successfully
     environment:
-      HTTP_PORT: "8080"
-      DB_HOST: db
-      DB_PORT: "3306"
-      DB_USER: ${DB_USER:-kanban}
-      DB_PASSWORD: ${DB_PASSWORD:-kanban}
-      DB_NAME: ${DB_NAME:-kanban}
-      JWT_SECRET: ${JWT_SECRET:-cambia-este-secreto-en-produccion}
-      CORS_ORIGIN: "*"
+      USERVAR_HTTP_PORT: "8080"
+      USERVAR_DB_HOST: db
+      USERVAR_DB_PORT: "3306"
+      USERVAR_DB_USER: ${USERVAR_DB_USER:-kanban}
+      USERVAR_DB_PASSWORD: ${USERVAR_DB_PASSWORD:-kanban}
+      USERVAR_DB_NAME: ${USERVAR_DB_NAME:-kanban}
+      USERVAR_JWT_SECRET: ${USERVAR_JWT_SECRET:?define USERVAR_JWT_SECRET en .env}
+      USERVAR_CORS_ORIGIN: ${USERVAR_CORS_ORIGIN:-*}
+      USERVAR_STATIC_DIR: /app/frontend
+      USERVAR_KEK_ID: ${USERVAR_KEK_ID:-v1}
+      USERVAR_KEK: ${USERVAR_KEK:?define USERVAR_KEK en .env (openssl rand -base64 32)}
+      USERVAR_KEK_RETIRED: ${USERVAR_KEK_RETIRED:-}
+      USERVAR_BLIND_INDEX_KEY: ${USERVAR_BLIND_INDEX_KEY:?define USERVAR_BLIND_INDEX_KEY en .env (openssl rand -base64 32)}
     ports:
       - "8080:8080"
 
+  # nginx sirve los estáticos y reenvía todo lo demás a la API, así el frontend
+  # habla con la API en el mismo origen (sin CORS ni api_base).
   frontend:
     image: nginx:alpine
     depends_on:
       - api
     volumes:
       - ./frontend:/usr/share/nginx/html:ro
+      - ./deploy/nginx.conf:/etc/nginx/conf.d/default.conf:ro
     ports:
       - "3000:80"
 

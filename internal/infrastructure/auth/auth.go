@@ -33,18 +33,18 @@ func NewJWTIssuer(secret string) JWTIssuer {
 	return JWTIssuer{secret: []byte(secret), ttl: 24 * time.Hour}
 }
 
-func (j JWTIssuer) Issue(userID int64, email string) (string, error) {
+func (j JWTIssuer) Issue(userID int64) (string, error) {
+	now := time.Now()
 	claims := jwt.MapClaims{
-		"sub":   userID,
-		"email": email,
-		"exp":   time.Now().Add(j.ttl).Unix(),
-		"iat":   time.Now().Unix(),
+		"sub": userID,
+		"exp": now.Add(j.ttl).Unix(),
+		"iat": now.Unix(),
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString(j.secret)
 }
 
-func (j JWTIssuer) Parse(tokenString string) (int64, string, error) {
+func (j JWTIssuer) Parse(tokenString string) (int64, error) {
 	token, err := jwt.Parse(tokenString, func(t *jwt.Token) (any, error) {
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, errors.New("método de firma inesperado")
@@ -52,13 +52,15 @@ func (j JWTIssuer) Parse(tokenString string) (int64, string, error) {
 		return j.secret, nil
 	})
 	if err != nil || !token.Valid {
-		return 0, "", errors.New("token inválido")
+		return 0, errors.New("token inválido")
 	}
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok {
-		return 0, "", errors.New("claims inválidos")
+		return 0, errors.New("claims inválidos")
 	}
 	sub, _ := claims["sub"].(float64)
-	email, _ := claims["email"].(string)
-	return int64(sub), email, nil
+	if sub <= 0 {
+		return 0, errors.New("token sin usuario")
+	}
+	return int64(sub), nil
 }

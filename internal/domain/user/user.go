@@ -25,7 +25,7 @@ type User struct {
 
 func NewUser(name, email, passwordHash string) (*User, error) {
 	name = strings.TrimSpace(name)
-	email = strings.ToLower(strings.TrimSpace(email))
+	email = NormalizeEmail(email)
 	if name == "" {
 		return nil, ErrEmptyName
 	}
@@ -38,6 +38,10 @@ func NewUser(name, email, passwordHash string) (*User, error) {
 		PasswordHash: passwordHash,
 		CreatedAt:    time.Now().UTC(),
 	}, nil
+}
+
+func NormalizeEmail(email string) string {
+	return strings.ToLower(strings.TrimSpace(email))
 }
 
 type Repository interface {

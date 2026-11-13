@@ -1,19 +1,26 @@
-CREATE TABLE users (
-    id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-    name          VARCHAR(120) NOT NULL,
-    email         VARCHAR(190) NOT NULL,
-    password_hash VARCHAR(255) NOT NULL,
-    created_at    DATETIME NOT NULL,
-    PRIMARY KEY (id),
-    UNIQUE KEY uq_users_email (email)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
 CREATE TABLE boards (
     id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     name        VARCHAR(160) NOT NULL,
     description TEXT NOT NULL,
     created_at  DATETIME NOT NULL,
     PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE users (
+    id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    name          VARCHAR(120) NULL,
+    email         VARCHAR(190) NULL,
+    email_index   BINARY(32) NULL,
+    name_enc      VARBINARY(600) NULL,
+    email_enc     VARBINARY(800) NULL,
+    dek_wrapped   VARBINARY(128) NULL,
+    kek_id        VARCHAR(32) NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    created_at    DATETIME NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY uq_users_email (email),
+    UNIQUE KEY uq_users_email_index (email_index),
+    KEY idx_users_kek (kek_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE columns (
@@ -50,6 +57,7 @@ CREATE TABLE cards (
     PRIMARY KEY (id),
     KEY idx_cards_board (board_id),
     KEY idx_cards_column (column_id),
+    KEY fk_cards_assignee (assignee_id),
     CONSTRAINT fk_cards_board FOREIGN KEY (board_id) REFERENCES boards (id) ON DELETE CASCADE,
     CONSTRAINT fk_cards_column FOREIGN KEY (column_id) REFERENCES columns (id) ON DELETE CASCADE,
     CONSTRAINT fk_cards_assignee FOREIGN KEY (assignee_id) REFERENCES users (id) ON DELETE SET NULL
@@ -59,6 +67,7 @@ CREATE TABLE card_labels (
     card_id  BIGINT UNSIGNED NOT NULL,
     label_id BIGINT UNSIGNED NOT NULL,
     PRIMARY KEY (card_id, label_id),
+    KEY fk_cardlabels_label (label_id),
     CONSTRAINT fk_cardlabels_card FOREIGN KEY (card_id) REFERENCES cards (id) ON DELETE CASCADE,
     CONSTRAINT fk_cardlabels_label FOREIGN KEY (label_id) REFERENCES labels (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

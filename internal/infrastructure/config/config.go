@@ -13,6 +13,11 @@ type Config struct {
 	JWTSecret  string
 	CORSOrigin string
 	StaticDir  string
+
+	KEKID         string
+	KEK           string
+	KEKRetired    string
+	BlindIndexKey string
 }
 
 func Load() Config {
@@ -26,12 +31,22 @@ func Load() Config {
 	my.Loc = time.UTC
 	my.Params = map[string]string{"charset": "utf8mb4"}
 
+	staticDir, set := os.LookupEnv("USERVAR_STATIC_DIR")
+	if !set {
+		staticDir = "frontend"
+	}
+
 	return Config{
 		HTTPPort:   env("USERVAR_HTTP_PORT", "8080"),
 		DSN:        my.FormatDSN(),
 		JWTSecret:  env("USERVAR_JWT_SECRET", "cambia-este-secreto-en-produccion"),
 		CORSOrigin: env("USERVAR_CORS_ORIGIN", "*"),
-		StaticDir:  env("USERVAR_STATIC_DIR", "frontend"),
+		StaticDir:  staticDir,
+
+		KEKID:         env("USERVAR_KEK_ID", "v1"),
+		KEK:           os.Getenv("USERVAR_KEK"),
+		KEKRetired:    os.Getenv("USERVAR_KEK_RETIRED"),
+		BlindIndexKey: os.Getenv("USERVAR_BLIND_INDEX_KEY"),
 	}
 }
 

@@ -6,5 +6,5 @@ type PasswordHasher interface {
 }
 
 type TokenIssuer interface {
-	Issue(userID int64, email string) (string, error)
+	Issue(userID int64) (string, error)
 }

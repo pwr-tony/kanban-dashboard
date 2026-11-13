@@ -1,7 +1,12 @@
 START TRANSACTION;
 
 DELETE FROM boards WHERE name = 'Proyecto Demo';
-DELETE FROM users WHERE email = 'demo@kanban.mx';
+-- Tras el primer arranque la API cifra el email del demo (queda NULL en claro),
+-- así que también se identifica por su hash bcrypt, que es único por la sal.
+-- La API lo vuelve a cifrar al arrancar (UserRepository.EncryptLegacyRows).
+DELETE FROM users
+WHERE email = 'demo@kanban.mx'
+   OR password_hash = '$2a$10$flDvcpm5.AzEbEEfkwE4C.lmmKxt7gMlU2X4bHDBQ0ENCDfd3vJwe';
 
 INSERT INTO users (name, email, password_hash, created_at)
 VALUES ('Demo Dev', 'demo@kanban.mx', '$2a$10$flDvcpm5.AzEbEEfkwE4C.lmmKxt7gMlU2X4bHDBQ0ENCDfd3vJwe', NOW());

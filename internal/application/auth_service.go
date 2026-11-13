@@ -10,10 +10,15 @@ type AuthService struct {
 	users  user.Repository
 	hasher PasswordHasher
 	tokens TokenIssuer
+
+	decoyHash string
 }
 
 func NewAuthService(users user.Repository, hasher PasswordHasher, tokens TokenIssuer) *AuthService {
-	return &AuthService{users: users, hasher: hasher, tokens: tokens}
+	s := &AuthService{users: users, hasher: hasher, tokens: tokens}
+
+	s.decoyHash, _ = hasher.Hash("kanban-decoy-password")
+	return s
 }
 
 type AuthResult struct {
@@ -22,6 +27,7 @@ type AuthResult struct {
 }
 
 func (s *AuthService) Register(ctx context.Context, name, email, password string) (*AuthResult, error) {
+	email = user.NormalizeEmail(email)
 	if existing, _ := s.users.FindByEmail(ctx, email); existing != nil {
 		return nil, user.ErrEmailTaken
 	}
@@ -36,7 +42,7 @@ func (s *AuthService) Register(ctx context.Context, name, email, password string
 	if err := s.users.Create(ctx, u); err != nil {
 		return nil, err
 	}
-	token, err := s.tokens.Issue(u.ID, u.Email)
+	token, err := s.tokens.Issue(u.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -44,14 +50,15 @@ func (s *AuthService) Register(ctx context.Context, name, email, password string
 }
 
 func (s *AuthService) Login(ctx context.Context, email, password string) (*AuthResult, error) {
-	u, err := s.users.FindByEmail(ctx, email)
+	u, err := s.users.FindByEmail(ctx, user.NormalizeEmail(email))
 	if err != nil {
+		_ = s.hasher.Compare(s.decoyHash, password)
 		return nil, user.ErrInvalidCreds
 	}
 	if err := s.hasher.Compare(u.PasswordHash, password); err != nil {
 		return nil, user.ErrInvalidCreds
 	}
-	token, err := s.tokens.Issue(u.ID, u.Email)
+	token, err := s.tokens.Issue(u.ID)
 	if err != nil {
 		return nil, err
 	}

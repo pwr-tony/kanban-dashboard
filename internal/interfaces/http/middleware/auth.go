@@ -16,13 +16,12 @@ func RequireAuth(issuer auth.JWTIssuer) gin.HandlerFunc {
 			return
 		}
 		token := strings.TrimPrefix(header, "Bearer ")
-		userID, email, err := issuer.Parse(token)
+		userID, err := issuer.Parse(token)
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "token inválido o expirado"})
 			return
 		}
 		c.Set("user_id", userID)
-		c.Set("user_email", email)
 		c.Next()
 	}
 }

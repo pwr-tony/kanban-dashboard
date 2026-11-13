@@ -299,7 +299,6 @@ function setupDropZone(zone, col) {
   });
 }
 
-/* ---------- Metrics ---------- */
 async function renderMetrics() {
   const view = el("metrics-view");
   view.innerHTML = `<div class="metrics-empty">Cargando métricas…</div>`;
@@ -397,7 +396,6 @@ function stat(label, value, sub, ico) {
   </div>`;
 }
 
-/* ---------- Modals ---------- */
 function showBoardModal() {
   openModal(`
     <h2>Nuevo tablero</h2>
@@ -560,7 +558,6 @@ function showLabelsModal() {
     );
 }
 
-/* ---------- Boot ---------- */
 if (state.token) {
   enterApp().catch(() => {
     state.token = "";

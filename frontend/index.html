@@ -2,113 +2,212 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Kanban · Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="description" content="Tableros Kanban con límites de WIP que se respetan y métricas de cycle time." />
+  <meta name="theme-color" content="#f6f5f2" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#111110" media="(prefers-color-scheme: dark)" />
+  <title>Kanban</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23171715'/%3E%3Cpath d='M10 9v11M16 9v6M22 9v14' stroke='%23fcfcfb' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E" />
+  <script>
+    try {
+      var t = localStorage.getItem("theme");
+      if (t === "light" || t === "dark") document.documentElement.dataset.theme = t;
+    } catch (e) {}
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <!-- ===== Auth ===== -->
-  <div id="auth-view" class="auth-view">
-    <div class="auth-aside">
-      <div class="brand brand-lg">
-        <span class="brand-mark">◧</span>
-        <span>Kanban</span>
-      </div>
-      <h2 class="auth-tagline">El flujo de tu proyecto,<br />bajo control.</h2>
-      <ul class="auth-points">
-        <li><span>◆</span> Límites de WIP que se respetan de verdad</li>
-        <li><span>◆</span> Cycle time y métricas en tiempo real</li>
-        <li><span>◆</span> Tableros, etiquetas y asignación</li>
-      </ul>
-      <div class="auth-aside-glow"></div>
-    </div>
+  <svg xmlns="http://www.w3.org/2000/svg" hidden>
+    <defs>
+      <symbol id="i-kanban" viewBox="0 0 24 24"><path d="M6 5v11M12 5v6M18 5v14" /></symbol>
+      <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" /></symbol>
+      <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12" /></symbol>
+      <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" /></symbol>
+      <symbol id="i-alert" viewBox="0 0 24 24"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0zM12 9v4M12 17h.01" /></symbol>
+      <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M12 16v-4M12 8h.01" /></symbol>
+      <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" /><circle cx="12" cy="12" r="3" /></symbol>
+      <symbol id="i-eye-off" viewBox="0 0 24 24"><path d="M9.9 4.2A10 10 0 0 1 12 4c6.5 0 10 8 10 8a17 17 0 0 1-2.2 3.2M6.6 6.6C3.9 8.3 2 12 2 12s3.5 7 10 7a9.7 9.7 0 0 0 5.4-1.6M14.1 14.1a3 3 0 1 1-4.2-4.2M2 2l20 20" /></symbol>
+      <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" /></symbol>
+      <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><path d="m9 12 2 2 4-4" /></symbol>
+      <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6" /></symbol>
+      <symbol id="i-settings" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h4M12 17h8" /><circle cx="16" cy="7" r="2" /><circle cx="10" cy="17" r="2" /></symbol>
+      <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z" /></symbol>
+      <symbol id="i-sparkle" viewBox="0 0 24 24"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9zM19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8z" /></symbol>
+      <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20h16M7 16V9M12 16V5M17 16v-4" /></symbol>
+      <symbol id="i-columns" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M9 4v16M15 4v16" /></symbol>
+      <symbol id="i-table" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M3 10h18M3 15h18M9 10v10" /></symbol>
+      <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></symbol>
+      <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-2.6-6.4M21 4v5h-5" /></symbol>
+      <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16" /></symbol>
+      <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></symbol>
+      <symbol id="i-more" viewBox="0 0 24 24"><path d="M5 12h.01M12 12h.01M19 12h.01" stroke-width="3" /></symbol>
+      <symbol id="i-tag" viewBox="0 0 24 24"><path d="M12.6 2.6A2 2 0 0 0 11.2 2H4a2 2 0 0 0-2 2v7.2a2 2 0 0 0 .6 1.4l8.7 8.7a2.4 2.4 0 0 0 3.4 0l6.6-6.6a2.4 2.4 0 0 0 0-3.4z" /><path d="M7.5 7.5h.01" stroke-width="3" /></symbol>
+      <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M6.3 17.7l-1.4 1.4M19.1 4.9l-1.4 1.4" /></symbol>
+      <symbol id="i-moon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z" /></symbol>
+      <symbol id="i-monitor" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" /><path d="M8 21h8M12 17v4" /></symbol>
+      <symbol id="i-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" /></symbol>
+      <symbol id="i-updown" viewBox="0 0 24 24"><path d="m7 15 5 5 5-5M7 9l5-5 5 5" /></symbol>
+    </defs>
+  </svg>
 
-    <div class="auth-panel">
+  <a class="skip-link" href="#main">Saltar al contenido</a>
+
+  <main id="auth" class="auth" hidden>
+    <section class="auth-showcase" aria-hidden="true">
+      <div class="brand brand-inverse"><span class="brand-mark"><svg class="icon"><use href="#i-kanban" /></svg></span>Kanban</div>
+
+      <div class="showcase-copy">
+        <p class="eyebrow">Gestión de flujo</p>
+        <p class="display">Menos trabajo a medias.<br />Más trabajo terminado.</p>
+        <p class="lede">Límites de WIP que la herramienta hace cumplir, y cycle time que se calcula solo a partir del historial de cada tarjeta.</p>
+      </div>
+
+      <div class="mini-board">
+        <div class="mini-col">
+          <div class="mini-head"><span>Por hacer</span><span class="mono">2</span></div>
+          <div class="mini-card"><i style="width:72%"></i><i style="width:44%"></i></div>
+          <div class="mini-card"><i style="width:58%"></i></div>
+        </div>
+        <div class="mini-col mini-col-full">
+          <div class="mini-head"><span>En progreso</span><span class="mono">3/3</span></div>
+          <div class="mini-meter"><i></i></div>
+          <div class="mini-card"><i style="width:64%"></i><i style="width:38%"></i></div>
+          <div class="mini-card"><i style="width:80%"></i></div>
+          <div class="mini-card"><i style="width:52%"></i><i style="width:30%"></i></div>
+        </div>
+        <div class="mini-col">
+          <div class="mini-head"><span>Hecho</span><span class="mono">4</span></div>
+          <div class="mini-card mini-done"><i style="width:60%"></i></div>
+          <div class="mini-card mini-done"><i style="width:76%"></i></div>
+        </div>
+      </div>
+
+      <p class="showcase-foot"><svg class="icon"><use href="#i-shield" /></svg>Tu nombre y tu correo se guardan cifrados (AES-256-GCM, una llave por persona).</p>
+    </section>
+
+    <section class="auth-panel">
       <div class="auth-card">
-        <div class="tabs" role="tablist">
-          <button id="tab-login" class="tab active" role="tab">Entrar</button>
-          <button id="tab-register" class="tab" role="tab">Crear cuenta</button>
-        </div>
-        <form id="auth-form" class="form">
-          <label id="name-field" class="field hidden">
-            <span>Nombre</span>
-            <input type="text" id="auth-name" autocomplete="name" placeholder="Tu nombre" />
+        <div class="brand auth-brand-mobile"><span class="brand-mark"><svg class="icon" aria-hidden="true"><use href="#i-kanban" /></svg></span>Kanban</div>
+        <h1 id="auth-title" class="auth-title">Entra a tu espacio</h1>
+        <p id="auth-sub" class="auth-sub">Continúa donde dejaste tus tableros.</p>
+
+        <form id="auth-form" class="stack" novalidate>
+          <label class="field" id="name-field" hidden>
+            <span class="field-label">Nombre</span>
+            <input id="auth-name" name="name" type="text" autocomplete="name" maxlength="120" placeholder="Cómo te verá tu equipo" />
           </label>
           <label class="field">
-            <span>Email</span>
-            <input type="email" id="auth-email" autocomplete="email" placeholder="tu@correo.mx" required />
+            <span class="field-label">Correo</span>
+            <input id="auth-email" name="email" type="email" autocomplete="email" inputmode="email" required placeholder="tu@empresa.com" />
           </label>
-          <label class="field">
-            <span>Contraseña</span>
-            <input type="password" id="auth-password" autocomplete="current-password" placeholder="••••••••" required />
-          </label>
-          <button type="submit" class="btn btn-primary btn-block" id="auth-submit">Entrar</button>
-          <p id="auth-error" class="form-error"></p>
-          <p class="auth-hint muted">Demo: <code>demo@kanban.mx</code> · <code>demo1234</code></p>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <!-- ===== App ===== -->
-  <div id="app-view" class="app hidden">
-    <aside class="sidebar">
-      <div class="brand">
-        <span class="brand-mark">◧</span>
-        <span>Kanban</span>
-      </div>
-
-      <div class="sidebar-section">
-        <div class="sidebar-label">
-          <span>Tableros</span>
-          <button class="icon-btn" id="new-board-btn" title="Nuevo tablero">+</button>
-        </div>
-        <nav id="board-nav" class="board-nav"></nav>
-      </div>
-
-      <div class="sidebar-foot">
-        <div class="user-card">
-          <div class="avatar" id="user-avatar">·</div>
-          <div class="user-meta">
-            <span id="current-user" class="user-name"></span>
-            <span class="muted sm">Sesión activa</span>
+          <div class="field">
+            <label class="field-label" for="auth-password">Contraseña</label>
+            <div class="input-affix">
+              <input id="auth-password" name="password" type="password" autocomplete="current-password" required placeholder="••••••••" />
+              <button id="toggle-password" class="icon-btn icon-btn-sm" type="button" aria-label="Mostrar contraseña" aria-pressed="false"><svg class="icon" aria-hidden="true"><use href="#i-eye" /></svg></button>
+            </div>
+            <span class="field-hint" id="password-hint" hidden>Mínimo 6 caracteres.</span>
           </div>
-          <button class="icon-btn" id="logout-btn" title="Salir">⌁</button>
+
+          <p id="auth-error" class="form-error" role="alert"></p>
+
+          <button id="auth-submit" class="btn btn-primary btn-lg btn-block" type="submit"><span class="btn-label">Entrar</span></button>
+        </form>
+
+        <p class="auth-switch"><span id="auth-switch-text">¿Aún no tienes cuenta?</span> <button id="auth-switch" class="link" type="button">Crear una</button></p>
+
+        <div class="auth-demo">
+          <span>¿Solo quieres verlo?</span>
+          <button id="use-demo" class="link" type="button">Usar la cuenta demo</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="app" class="app" hidden>
+    <aside class="sidebar" id="sidebar" aria-label="Navegación">
+      <div class="sidebar-top">
+        <div class="brand"><span class="brand-mark"><svg class="icon" aria-hidden="true"><use href="#i-kanban" /></svg></span>Kanban</div>
+        <button id="close-sidebar" class="icon-btn sidebar-close" type="button" aria-label="Cerrar menú"><svg class="icon" aria-hidden="true"><use href="#i-x" /></svg></button>
+      </div>
+
+      <nav class="sidebar-nav" aria-labelledby="boards-heading">
+        <div class="nav-heading">
+          <h2 id="boards-heading">Tableros</h2>
+          <button id="new-board" class="icon-btn icon-btn-sm" type="button" aria-label="Nuevo tablero" data-tip="Nuevo tablero"><svg class="icon" aria-hidden="true"><use href="#i-plus" /></svg></button>
+        </div>
+        <ul id="board-list" class="board-list"></ul>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <button class="account" type="button" popovertarget="account-menu" aria-haspopup="menu" aria-expanded="false">
+          <span class="avatar" id="account-avatar" aria-hidden="true">·</span>
+          <span class="account-meta">
+            <span class="account-name" id="account-name"></span>
+            <span class="account-email" id="account-email"></span>
+          </span>
+          <svg class="icon" aria-hidden="true"><use href="#i-updown" /></svg>
+        </button>
+        <div id="account-menu" class="menu" popover data-align="start">
+          <div class="menu-label" id="theme-label">Apariencia</div>
+          <div role="group" aria-labelledby="theme-label">
+            <button type="button" role="menuitemradio" data-theme-option="system"><svg class="icon" aria-hidden="true"><use href="#i-monitor" /></svg>Sistema<svg class="icon menu-check" aria-hidden="true"><use href="#i-check" /></svg></button>
+            <button type="button" role="menuitemradio" data-theme-option="light"><svg class="icon" aria-hidden="true"><use href="#i-sun" /></svg>Claro<svg class="icon menu-check" aria-hidden="true"><use href="#i-check" /></svg></button>
+            <button type="button" role="menuitemradio" data-theme-option="dark"><svg class="icon" aria-hidden="true"><use href="#i-moon" /></svg>Oscuro<svg class="icon menu-check" aria-hidden="true"><use href="#i-check" /></svg></button>
+          </div>
+          <hr />
+          <button type="button" role="menuitem" id="logout"><svg class="icon" aria-hidden="true"><use href="#i-logout" /></svg>Cerrar sesión</button>
         </div>
       </div>
     </aside>
+    <div id="scrim" class="scrim" hidden></div>
 
-    <main class="workspace">
-      <header class="workspace-header">
-        <div class="wh-title">
-          <h1 id="board-title">—</h1>
-          <p id="board-desc" class="muted"></p>
+    <main id="main" class="workspace" tabindex="-1">
+      <header class="topbar">
+        <button id="open-sidebar" class="icon-btn menu-btn" type="button" aria-label="Abrir menú"><svg class="icon" aria-hidden="true"><use href="#i-menu" /></svg></button>
+        <div class="title-block">
+          <h1 id="board-title">Tableros</h1>
+          <p id="board-desc" hidden></p>
         </div>
-        <div class="wh-actions">
-          <div class="segmented" id="view-switch">
-            <button class="seg active" data-view="board">Tablero</button>
-            <button class="seg" data-view="metrics">Métricas</button>
+        <div class="topbar-actions">
+          <label class="search" id="filter-wrap" hidden>
+            <svg class="icon" aria-hidden="true"><use href="#i-search" /></svg>
+            <input id="filter" type="search" placeholder="Filtrar tarjetas" aria-label="Filtrar tarjetas por texto, persona o etiqueta" autocomplete="off" />
+            <kbd aria-hidden="true">/</kbd>
+          </label>
+          <button id="labels-btn" class="btn" type="button" data-requires-board hidden><svg class="icon" aria-hidden="true"><use href="#i-tag" /></svg><span class="hide-sm">Etiquetas</span></button>
+          <button id="new-column-btn" class="btn btn-primary" type="button" hidden><svg class="icon" aria-hidden="true"><use href="#i-plus" /></svg><span class="hide-sm">Columna</span></button>
+          <button class="icon-btn" type="button" popovertarget="board-menu" aria-haspopup="menu" aria-expanded="false" aria-label="Opciones del tablero" data-requires-board hidden><svg class="icon" aria-hidden="true"><use href="#i-more" /></svg></button>
+          <div id="board-menu" class="menu" popover>
+            <button type="button" role="menuitem" id="edit-board"><svg class="icon" aria-hidden="true"><use href="#i-pencil" /></svg>Editar tablero</button>
+            <hr />
+            <button type="button" role="menuitem" id="delete-board" class="menu-danger"><svg class="icon" aria-hidden="true"><use href="#i-trash" /></svg>Eliminar tablero…</button>
           </div>
-          <button class="btn" id="labels-btn">Etiquetas</button>
-          <button class="btn btn-primary" id="new-column-btn">+ Columna</button>
         </div>
       </header>
 
-      <section id="board-view" class="board-view"></section>
-      <section id="metrics-view" class="metrics-view hidden"></section>
+      <div class="subbar" id="board-tabs" hidden>
+        <div class="tabs" role="tablist" aria-label="Vista">
+          <button type="button" role="tab" id="tab-board" data-view="board" aria-controls="board-view" aria-selected="true"><svg class="icon" aria-hidden="true"><use href="#i-columns" /></svg>Tablero</button>
+          <button type="button" role="tab" id="tab-metrics" data-view="metrics" aria-controls="metrics-view" aria-selected="false" tabindex="-1"><svg class="icon" aria-hidden="true"><use href="#i-chart" /></svg>Métricas</button>
+        </div>
+        <div id="board-summary" class="summary"></div>
+      </div>
+
+      <section id="board-view" class="board-view" role="tabpanel" aria-labelledby="tab-board"></section>
+      <section id="metrics-view" class="metrics-view" role="tabpanel" aria-labelledby="tab-metrics" hidden></section>
+      <p id="move-hint" class="sr-only">Enter para abrir. Alt más flecha izquierda o derecha para mover de columna.</p>
     </main>
   </div>
 
-  <div id="modal-root" class="modal-root hidden">
-    <div class="modal-backdrop"></div>
-    <div class="modal" id="modal"></div>
-  </div>
+  <div id="toasts" class="toasts"></div>
+  <div id="tooltip" class="tooltip" role="tooltip" hidden></div>
+  <div id="sr-live" class="sr-only" aria-live="polite"></div>
 
-  <div id="toast" class="toast"></div>
-
-  <script src="app.js"></script>
+  <script type="module" src="js/main.js"></script>
 </body>
 </html>

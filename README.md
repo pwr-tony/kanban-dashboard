@@ -15,6 +15,7 @@ La pieza central es la **regla de WIP**: la aplicación **impide mover** una tar
 | Migraciones | **golang-migrate** (SQL versionado) |
 | Frontend | **HTML + CSS + JS** (vanilla), servido por el mismo binario de Go |
 | Auth | **JWT** (HS256) + **bcrypt** |
+| Datos personales | **Cifrado por sobre** (KEK/DEK, AES-256-GCM) + índice ciego HMAC-SHA256 |
 | Contenedores | **Docker** multi-stage + **docker-compose** |
 | Arquitectura | **DDD** (Domain-Driven Design), 4 capas |
 
@@ -74,13 +75,17 @@ kanban-dashboard/
 │   ├── infrastructure/
 │   │   ├── persistence/mysql/      # repositorios con MySQL
 │   │   ├── config/                 # carga de configuración (vars USERVAR_*)
-│   │   └── auth/                   # bcrypt + JWT
+│   │   ├── auth/                   # bcrypt + JWT
+│   │   └── crypto/                 # cifrado por sobre KEK/DEK + índice ciego
 │   └── interfaces/http/            # Gin: handlers, router, middleware, DTOs
-├── migrations/                     # 000001_init.up.sql / .down.sql
+├── migrations/                     # 000001_init, 000002_user_envelope_encryption
 ├── scripts/seed.sql                # datos de ejemplo (tablero demo con cycle time)
-├── frontend/                       # HTML + CSS + JS (servido por el propio binario)
-├── Dockerfile                      # imagen multi-stage del backend
+├── frontend/                       # HTML + CSS + JS en módulos ES (servido por el propio binario)
+│   └── js/                         # main, app, board, metrics, dialogs, auth, ui, api, store, lib
+├── deploy/nginx.conf               # nginx: estáticos + proxy a la API (docker-compose)
+├── Dockerfile                      # imagen multi-stage del backend (incluye el frontend)
 ├── docker-compose.yml              # db + migrate + api + frontend
+├── .env.example                    # plantilla de configuración
 └── .env                            # configuración local (no se versiona)
 ```
 
@@ -90,16 +95,19 @@ kanban-dashboard/
 
 ### Opción A — Docker (todo de cero, lo que pide la rúbrica)
 
-Requiere Docker. Copia `.env.example` a `.env` si quieres cambiar credenciales.
+Requiere Docker. Copia la plantilla y genera las llaves (la API no arranca sin ellas):
 
 ```bash
+cp .env.example .env
+# en .env: USERVAR_JWT_SECRET, USERVAR_KEK y USERVAR_BLIND_INDEX_KEY
+openssl rand -base64 32   # una vez para la KEK y otra para el índice ciego
 docker-compose up --build
 ```
 
 Levanta **MySQL 8**, corre las **migraciones** (servicio `migrate`), arranca la **API** y sirve el **frontend**. Queda todo corriendo sin instalar nada en la máquina.
 
 - API: http://localhost:8080
-- Frontend (nginx): http://localhost:3000
+- Frontend (nginx): http://localhost:3000 — sirve los estáticos y reenvía el resto a la API (mismo origen)
 
 ### Opción B — Local con `go run` (desarrollo)
 
@@ -128,8 +136,29 @@ La app lee variables con prefijo `USERVAR_` (autocargadas desde `.env`):
 | `USERVAR_JWT_SECRET` | *(dev)* | Llave para firmar los tokens JWT |
 | `USERVAR_CORS_ORIGIN` | `*` | Origen permitido para CORS |
 | `USERVAR_STATIC_DIR` | `frontend` | Carpeta estática que sirve el binario (vacío = no servir) |
+| `USERVAR_KEK` | — **requerida** | KEK activa: 32 bytes en base64 (`openssl rand -base64 32`) |
+| `USERVAR_KEK_ID` | `v1` | Id de la KEK activa; se guarda junto a cada DEK |
+| `USERVAR_KEK_RETIRED` | *(vacío)* | Solo al rotar: KEKs anteriores `id:base64,id:base64` |
+| `USERVAR_BLIND_INDEX_KEY` | — **requerida** | Llave HMAC del índice ciego del email (distinta de la KEK) |
 
 > El usuario de la app solo requiere **DML** (`SELECT/INSERT/UPDATE/DELETE`). El DDL (crear tablas) lo hacen las **migraciones**, que se corren con un usuario privilegiado una sola vez — mínimo privilegio.
+
+---
+
+## Cifrado de datos personales (KEK/DEK)
+
+El nombre y el email de cada usuario se guardan **cifrados en reposo** con *envelope encryption* (`internal/infrastructure/crypto`):
+
+- **DEK** (*data encryption key*): llave AES-256 aleatoria, **una por usuario**. Cifra `name` y `email` con AES-256-GCM; cada campo lleva su nombre como AAD, así que no se puede copiar el email cifrado al campo del nombre.
+- **KEK** (*key encryption key*): vive **fuera de la BD** (`USERVAR_KEK`). Solo envuelve las DEKs; la tabla guarda `dek_wrapped` y `kek_id`.
+- **Índice ciego**: `email_index = HMAC-SHA256(email normalizado)` con otra llave. Permite el login y la unicidad del email sin guardarlo en claro.
+- El **JWT solo lleva el id** del usuario (`sub`): su payload es legible, así que no lleva datos personales.
+
+**Migración de datos existentes.** La migración `000002` agrega las columnas cifradas. Al arrancar, la API cifra las filas que siguen en claro (incluido el usuario del seed) y deja `name`/`email` en `NULL`. Es idempotente.
+
+**Rotar la KEK.** Pon la nueva en `USERVAR_KEK` con un `USERVAR_KEK_ID` nuevo y la anterior en `USERVAR_KEK_RETIRED=v1:<base64>`. Al arrancar, la API re-envuelve todas las DEKs (los datos no se re-cifran). En el siguiente despliegue ya puedes quitar la KEK retirada.
+
+> ⚠️ Si se pierde la KEK, los nombres y emails cifrados son **irrecuperables**. No rotes `USERVAR_BLIND_INDEX_KEY` a la ligera: cambiarla rompe la búsqueda por email. Revertir la `000002` destruye los datos ya cifrados.
 
 ---
 
@@ -204,6 +233,7 @@ go test ./...
 
 - `internal/domain/board/` — `WipLimit.Allows`, `MoveCard` (bloqueo por WIP, cruce de tableros, no-op a misma columna).
 - `internal/domain/metrics/` — conteos, over-limit, cycle time (ignora tarjetas sin terminar).
+- `internal/infrastructure/crypto/` — ida y vuelta KEK/DEK, rechazo de datos alterados, AAD por campo, rotación de KEK e índice ciego.
 - `internal/interfaces/http/` — el router construye sin conflictos y protege las rutas.
 
 ---
